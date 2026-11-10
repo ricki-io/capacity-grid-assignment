@@ -1,6 +1,15 @@
 :root {
   color-scheme: light dark;
   font-family: ui-sans-serif, system-ui, sans-serif;
+
+  --line: color-mix(in srgb, currentColor 16%, transparent);
+  --muted: color-mix(in srgb, currentColor 62%, transparent);
+  --subtle: color-mix(in srgb, currentColor 6%, transparent);
+  --over: light-dark(#b42318, #ff8a80);
+  --over-fill: light-dark(#fde4e1, #5a1f1a);
+  --full: light-dark(#93520a, #f5c26b);
+  --ok: light-dark(#1a7f4b, #6fd6a0);
+  --accent: light-dark(#3b5bdb, #91a7ff);
 }
 
 body {
@@ -19,14 +28,261 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
-table {
-  border-collapse: collapse;
+button {
+  font: inherit;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: Canvas;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--subtle);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Summary and filter */
+
+.capacity-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.capacity-summary {
+  margin: 0;
+}
+
+.capacity-summary strong {
+  color: var(--over);
+}
+
+.only-over {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+/* Messages */
+
+.notice {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--subtle);
+}
+
+.notice-error,
+.load-error {
+  border-color: var(--over);
+  background: var(--over-fill);
+}
+
+.load-error {
+  padding: 1rem;
+  border: 1px solid var(--over);
+  border-radius: 8px;
+}
+
+.load-error p {
+  margin: 0 0 0.75rem;
+}
+
+.empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Grid */
+
+.grid-scroll {
+  max-height: calc(100vh - 14rem);
+  min-height: 12rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: opacity 150ms;
+}
+
+.grid-scroll[aria-busy='true'] {
+  opacity: 0.5;
+}
+
+.grid {
+  border-collapse: separate;
+  border-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
-th,
-td {
-  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+.grid th,
+.grid td {
   padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
   text-align: left;
+  vertical-align: top;
+}
+
+.grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: Canvas;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.grid .person-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 13rem;
+  max-width: 18rem;
+  background: Canvas;
+  font-weight: 500;
+}
+
+.grid thead .person-col {
+  z-index: 3;
+}
+
+.week-col {
+  min-width: 7.5rem;
+}
+
+.week-col.this-week {
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.week-label,
+.week-over,
+.person-name,
+.person-capacity {
+  display: block;
+}
+
+.week-over {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--over);
+}
+
+.week-over-none {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.person-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-capacity {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* Cells */
+
+.cell-none {
+  color: var(--muted);
+}
+
+.cell-hours {
+  font-weight: 600;
+}
+
+.cell-note {
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.cell-meter {
+  display: block;
+  height: 4px;
+  margin-top: 0.4rem;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.cell-meter span {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+}
+
+.cell-full .cell-note {
+  color: var(--full);
+}
+
+.cell-full .cell-meter span {
+  background: var(--full);
+}
+
+.cell-over {
+  background: var(--over-fill);
+  color: var(--over);
+}
+
+.cell-over .cell-note {
+  font-weight: 600;
+}
+
+.cell-over .cell-meter span {
+  background: var(--over);
+}
+
+/* Loading */
+
+.loading {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.loading-row {
+  height: 2.75rem;
+  border-radius: 6px;
+  background: var(--subtle);
+  animation: pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-row {
+    animation: none;
+  }
+
+  .grid-scroll {
+    transition: none;
+  }
 }
