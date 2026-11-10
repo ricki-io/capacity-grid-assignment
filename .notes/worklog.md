@@ -68,3 +68,38 @@ left unfinished. Append as you go; a line or two per entry is right.
   and scrolls without trouble. Stopped the API container to see both failure states.
 - Deferred: the range is not in the URL, so a reload returns to the opening weeks. No row
   virtualisation yet (see API notes).
+
+## Editing weekly hours
+
+- After a save the grid patches what it already has, optimistically, rather than waiting
+  on a refetch. This is safe because of the data: weekly hours are one value per person
+  and allocated hours do not depend on them, so an edit changes exactly one field and
+  every other number is derived from it while rendering.
+- The new value is written into every cached range, not only the visible one, so going
+  back to weeks already visited does not show the old hours.
+- A failed save puts that one value back and leaves a message on the row with the value
+  that was tried, plus retry and dismiss. Only the one field is restored, not a snapshot
+  of the cache, so it cannot undo another save still in progress.
+- Late arrivals: fetches in flight when a save starts are cancelled (they read the old
+  value). When the last save in flight settles, the ranges are refetched in the
+  background. That covers a range requested mid-save, and a save that reached the
+  database but whose reply was lost.
+- One save per person at a time; the control is inert while saving, so two replies for the
+  same person cannot land out of order.
+- Enter or leaving the field saves, Escape cancels, an invalid value (outside 0–168) is
+  refused in place and never sent.
+- Caught while looking at it running: after Enter, keyboard focus was lost. The button
+  was `disabled` in the same render that focus returned to it, and a disabled button
+  cannot take focus. Switched to `aria-disabled` plus a guard in the click handler.
+- Looked at it running: Dee 40 -> 50 clears her "+5h over", the week goes from 15 to 14
+  over and the range from 41 to 40 people. With the API container stopped, Ana 40 -> 30
+  showed the optimistic numbers, then went back with the error; retry worked once the API
+  was up. Put both people back to 40 afterwards.
+- Tests: week maths (year boundary, Sunday, range clamping), the load boundaries (40/40
+  is full, 20/0 is over), and the grid through a successful and a failed save.
+- Caught while checking the tests: the first failed-save test still passed with the
+  rollback line deleted. The refetch that follows every save was putting the old value
+  back, so the test proved nothing about the rollback. It now takes the fake API down for
+  reads as well, which is what a real outage looks like, and goes red without the rollback.
+- Not done: no versioning, so two managers editing the same person is last write wins.
+  A failed save's message lives in the grid's state and is lost on reload.
