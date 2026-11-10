@@ -1,4 +1,7 @@
-import type { PersonCapacity } from './api'
+import type { Capacity, PersonCapacity } from './api'
+
+/** The most hours a week can hold. Matches the limit the API enforces. */
+export const MAX_WEEKLY_HOURS = 168
 
 export type Load = 'none' | 'under' | 'full' | 'over'
 
@@ -27,6 +30,22 @@ export function overCountByWeek(people: PersonCapacity[], weekCount: number): nu
     })
   }
   return counts
+}
+
+/**
+ * The same capacity with one person's weekly hours replaced. Everyone else
+ * keeps their identity, so only that person's row has anything to re-render.
+ */
+export function withWeeklyHours(capacity: Capacity, id: number, weeklyHours: number): Capacity {
+  const person = capacity.people.find((candidate) => candidate.id === id)
+  if (!person || person.weeklyHours === weeklyHours) return capacity
+
+  return {
+    ...capacity,
+    people: capacity.people.map((candidate) =>
+      candidate === person ? { ...person, weeklyHours } : candidate,
+    ),
+  }
 }
 
 const hoursFormat = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 })

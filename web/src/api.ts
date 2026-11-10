@@ -23,6 +23,14 @@ export function fetchCapacity(from: string, to: string, signal?: AbortSignal): P
   return request<Capacity>(`/api/capacity?${params}`, { signal })
 }
 
+export function updateWeeklyHours(id: number, weeklyHours: number): Promise<Person> {
+  return request<Person>(`/api/people/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ weeklyHours }),
+  })
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response
   try {
@@ -30,12 +38,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   } catch (cause) {
     // A cancelled request is not a failure; let the caller see the abort.
     if (init?.signal?.aborted) throw cause
-    throw new ApiError('Could not reach the server. Check your connection and try again.')
+    throw new ApiError('Could not reach the server.')
   }
 
   if (!response.ok) {
     const body: { error?: string } | null = await response.json().catch(() => null)
-    throw new ApiError(body?.error ?? 'The server had a problem. Try again in a moment.')
+    throw new ApiError(body?.error ?? 'The server had a problem.')
   }
   return response.json()
 }

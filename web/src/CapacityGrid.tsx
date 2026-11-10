@@ -1,8 +1,9 @@
 import { memo, useMemo, useState } from 'react'
-import type { PersonCapacity } from './api'
+import type { Person, PersonCapacity } from './api'
 import { formatHours, isOverInAnyWeek, loadOf, overCountByWeek } from './capacity'
-import { useCapacity } from './useCapacity'
+import { useCapacity, useWeeklyHoursEditor, type SaveState } from './useCapacity'
 import { addDays, formatDay, mondayOf, today } from './weeks'
+import { WeeklyHoursEditor } from './WeeklyHoursEditor'
 
 type Props = {
   from: string
@@ -17,6 +18,7 @@ type Props = {
 // a change to someone's weekly hours cannot leave a stale number behind.
 export function CapacityGrid({ from, to }: Props) {
   const { data, error, isFetching, isPlaceholderData, refetch } = useCapacity(from, to)
+  const { saves, save, dismiss } = useWeeklyHoursEditor()
   const [onlyOver, setOnlyOver] = useState(false)
 
   const overByWeek = useMemo(
@@ -99,7 +101,13 @@ export function CapacityGrid({ from, to }: Props) {
             </thead>
             <tbody>
               {people.map((person) => (
-                <PersonRow key={person.id} person={person} />
+                <PersonRow
+                  key={person.id}
+                  person={person}
+                  save={saves[person.id]}
+                  onSave={save}
+                  onDismiss={dismiss}
+                />
               ))}
             </tbody>
           </table>
@@ -111,13 +119,23 @@ export function CapacityGrid({ from, to }: Props) {
 
 // Memoised because the query keeps unchanged people referentially equal:
 // editing one person re-renders one row, not all of them.
-const PersonRow = memo(function PersonRow({ person }: { person: PersonCapacity }) {
+const PersonRow = memo(function PersonRow({
+  person,
+  save,
+  onSave,
+  onDismiss,
+}: {
+  person: PersonCapacity
+  save: SaveState | undefined
+  onSave: (person: Person, weeklyHours: number) => void
+  onDismiss: (id: number) => void
+}) {
   return (
     <tr>
       <th scope="row" className="person-col">
         {/* bdi keeps right-to-left names from reordering the text around them */}
         <bdi className="person-name">{person.name}</bdi>
-        <span className="person-capacity">{formatHours(person.weeklyHours)} / week</span>
+        <WeeklyHoursEditor person={person} save={save} onSave={onSave} onDismiss={onDismiss} />
       </th>
       {person.allocated.map((allocated, week) => (
         <WeekCell key={week} allocated={allocated} capacity={person.weeklyHours} />

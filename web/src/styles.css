@@ -212,8 +212,7 @@ button:disabled {
 
 .week-label,
 .week-over,
-.person-name,
-.person-capacity {
+.person-name {
   display: block;
 }
 
@@ -235,11 +234,62 @@ button:disabled {
   white-space: nowrap;
 }
 
-.person-capacity {
+/* Weekly hours editor */
+
+.hours-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.4rem;
   margin-top: 0.15rem;
   font-size: 0.8rem;
   font-weight: 400;
   color: var(--muted);
+}
+
+.hours-button {
+  padding: 0.05rem 0.3rem;
+  margin-left: -0.3rem;
+  border-color: transparent;
+  background: none;
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.hours-button:hover:not([aria-disabled='true']) {
+  border-color: var(--line);
+  color: CanvasText;
+}
+
+.hours-button[aria-disabled='true'] {
+  cursor: default;
+  text-decoration: none;
+}
+
+.hours-input {
+  width: 4.5rem;
+  font: inherit;
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.hours-input[aria-invalid='true'] {
+  border-color: var(--over);
+}
+
+.hours-problem {
+  flex-basis: 100%;
+  color: var(--over);
+  white-space: normal;
+}
+
+.hours-problem button {
+  padding: 0 0.4rem;
+  font-size: inherit;
 }
 
 /* Cells */
