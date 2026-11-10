@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -31,7 +32,13 @@ type updatePersonRequest struct {
 // person, so that one object is everything an edit can have changed: the
 // grid swaps it in and every number derived from it follows.
 func (s *server) handleUpdatePerson(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	// 32 bits, to match the id column. A number too large for it cannot be
+	// anyone's id, so it is a person that does not exist, not a server error.
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 32)
+	if errors.Is(err, strconv.ErrRange) {
+		writeError(w, http.StatusNotFound, "person not found")
+		return
+	}
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "person id must be a number")
 		return
@@ -48,7 +55,7 @@ func (s *server) handleUpdatePerson(w http.ResponseWriter, r *http.Request) {
 	}
 	hours := *req.WeeklyHours
 	if hours < 0 || hours > maxWeeklyHours {
-		writeError(w, http.StatusUnprocessableEntity, "weeklyHours must be between 0 and 168")
+		writeError(w, http.StatusUnprocessableEntity, fmt.Sprintf("weeklyHours must be between 0 and %d", maxWeeklyHours))
 		return
 	}
 
@@ -65,7 +72,7 @@ func (s *server) handleUpdatePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		s.internalError(w, r, "update person", err)
+		internalError(w, r, "update person", err)
 		return
 	}
 

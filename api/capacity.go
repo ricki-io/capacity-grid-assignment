@@ -3,12 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 )
-
-const dateLayout = "2006-01-02"
 
 // maxWeeks caps one request. The grid shows a window onto the history, not
 // all of it; a wider view should be several requests, not one large response.
@@ -83,7 +80,7 @@ func (s *server) handleCapacity(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := s.db.Query(r.Context(), capacityQuery, first, last)
 	if err != nil {
-		s.internalError(w, r, "capacity query", err)
+		internalError(w, r, "capacity query", err)
 		return
 	}
 	defer rows.Close()
@@ -92,13 +89,13 @@ func (s *server) handleCapacity(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var p personCapacity
 		if err := rows.Scan(&p.ID, &p.Name, &p.WeeklyHours, &p.Allocated); err != nil {
-			s.internalError(w, r, "capacity scan", err)
+			internalError(w, r, "capacity scan", err)
 			return
 		}
 		resp.People = append(resp.People, p)
 	}
 	if err := rows.Err(); err != nil {
-		s.internalError(w, r, "capacity rows", err)
+		internalError(w, r, "capacity rows", err)
 		return
 	}
 
@@ -108,11 +105,11 @@ func (s *server) handleCapacity(w http.ResponseWriter, r *http.Request) {
 // parseWeekRange turns from/to into the Mondays of the first and last week
 // the range touches.
 func parseWeekRange(from, to string) (first, last time.Time, err error) {
-	start, err := time.Parse(dateLayout, from)
+	start, err := time.Parse(time.DateOnly, from)
 	if err != nil {
 		return first, last, errors.New("from must be a date like 2026-01-05")
 	}
-	end, err := time.Parse(dateLayout, to)
+	end, err := time.Parse(time.DateOnly, to)
 	if err != nil {
 		return first, last, errors.New("to must be a date like 2026-01-05")
 	}
@@ -121,7 +118,7 @@ func parseWeekRange(from, to string) (first, last time.Time, err error) {
 	}
 
 	first, last = mondayOf(start), mondayOf(end)
-	if weeks := int(last.Sub(first).Hours()/(24*7)) + 1; weeks > maxWeeks {
+	if weeks := int(last.Sub(first)/(7*24*time.Hour)) + 1; weeks > maxWeeks {
 		return first, last, fmt.Errorf("range covers %d weeks, the most one request can cover is %d", weeks, maxWeeks)
 	}
 	return first, last, nil
@@ -135,17 +132,7 @@ func mondayOf(d time.Time) time.Time {
 func weekStarts(first, last time.Time) []string {
 	var weeks []string
 	for d := first; !d.After(last); d = d.AddDate(0, 0, 7) {
-		weeks = append(weeks, d.Format(dateLayout))
+		weeks = append(weeks, d.Format(time.DateOnly))
 	}
 	return weeks
-}
-
-// internalError logs the real cause and tells the client only that the
-// request failed. A request the client gave up on is not an error.
-func (s *server) internalError(w http.ResponseWriter, r *http.Request, what string, err error) {
-	if r.Context().Err() != nil {
-		return
-	}
-	log.Printf("%s: %v", what, err)
-	writeError(w, http.StatusInternalServerError, "something went wrong, try again")
 }

@@ -141,3 +141,22 @@ left unfinished. Append as you go; a line or two per entry is right.
 - Left alone on purpose: search and sort for 500 people, range presets, and a Save/Cancel
   step for weekly hours. Those are features, not fixes.
 - Not tested with a real screen reader, nor at 200% text-only zoom.
+
+## API tidy-up
+
+- Had the API diff reviewed for reuse, needless complexity and efficiency. Small things only:
+  - A person id too large for the id column gave a 500 (the driver refused to encode it).
+    It is parsed as 32 bits now and answers 404, like any other id that does not exist.
+  - `time.DateOnly` instead of my own copy of the layout; the 168 in the hours message
+    comes from the constant; `internalError` moved to `errors.go` next to `writeError`.
+- Query measured against the seed (500 people, 126,195 assignments): 3 to 6 ms for the
+  default three weeks, 27 to 40 ms at the 26-week cap. Three other shapes were equal or
+  slower, so it stays.
+- Left alone on purpose:
+  - The week list is built in Go (labels) and again in SQL (numbers). They agree because
+    both start from the same two Mondays. Passing the weeks in as one `date[]` would make
+    that true by construction; not worth reshaping the query for now.
+  - A reversed or too-wide range is 400 while out-of-range hours is 422. The client does
+    not branch on either.
+  - Scaffold as found: `handleHealth` still sends the raw error as plain text, and
+    `go.mod` requires `sqlx`, which nothing imports.
