@@ -103,3 +103,10 @@ left unfinished. Append as you go; a line or two per entry is right.
   reads as well, which is what a real outage looks like, and goes red without the rollback.
 - Not done: no versioning, so two managers editing the same person is last write wins.
   A failed save's message lives in the grid's state and is lost on reload.
+
+## Final check
+
+- Rebuilt from nothing (`docker compose down -v`, then up with `--build`): database
+  re-seeded, API image rebuilt, web dependencies installed fresh. The five hand-made
+  people still match, 39 / 15 / 0 over per week, 15 tests pass, type-check clean, and the
+  page loads with data.
