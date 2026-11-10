@@ -47,3 +47,24 @@ left unfinished. Append as you go; a line or two per entry is right.
 - Deferred: the `(start_date, end_date)` index only bounds `start_date`, so the scan grows
   with all history before `to`. A GiST index on a date range would fix it; the schema is
   off-limits here.
+
+## Grid
+
+- The range is owned by `App`, not the grid: the timeline that will sit next to it shows
+  the same weeks. The page opens on the scaffold's weeks, where the seed's hand-made cases
+  are, with "Today" one click away. In production the default would be the current week.
+- The date picker widens to whole weeks and stops at 26, the same cap as the API. The end
+  the manager just picked stays put and the other end moves.
+- Every derived number (cell state, "N over" per week, people over in the range) is worked
+  out during render from the response. Nothing derived is stored, so nothing can go stale.
+- Loading: first load shows placeholders; moving to new weeks keeps the previous ones on
+  screen, dimmed, with a line saying what is loading. Failure: with nothing to show, an
+  error and a retry; when a refresh fails, the last numbers stay with a warning that they
+  may be out of date. Queries retry once, not three times, so a failure shows in about a
+  second.
+- Over-allocation is stated in words ("+5h over"), not only colour.
+- Looked at it running: the five hand-made people match, and 39 / 15 / 0 people over per
+  week matches my own count from the seed. 26 weeks x 500 people (13,000 cells) renders
+  and scrolls without trouble. Stopped the API container to see both failure states.
+- Deferred: the range is not in the URL, so a reload returns to the opening weeks. No row
+  virtualisation yet (see API notes).

@@ -38,3 +38,43 @@ export function today(): string {
 export function formatDay(date: string): string {
   return dayFormat.format(toUtc(date))
 }
+
+/** The most weeks one view can cover. Matches the cap the API enforces. */
+export const MAX_WEEKS = 26
+
+/** Whole weeks: `from` is always a Monday and `to` the Sunday that ends a week. */
+export type Range = {
+  from: string
+  to: string
+}
+
+export function weekCount(range: Range): number {
+  const days = (toUtc(range.to) - toUtc(range.from)) / DAY_MS + 1
+  return Math.round(days / 7)
+}
+
+/** A range of `weeks` whole weeks starting with the week `date` falls in. */
+export function rangeOfWeeks(date: string, weeks: number): Range {
+  const from = mondayOf(date)
+  return { from, to: addDays(from, weeks * 7 - 1) }
+}
+
+export function shiftRange(range: Range, weeks: number): Range {
+  return { from: addDays(range.from, weeks * 7), to: addDays(range.to, weeks * 7) }
+}
+
+/**
+ * Turns any two dates into a valid range: widened to whole weeks, never
+ * backwards, never longer than MAX_WEEKS. `keep` is the end the manager just
+ * picked; when the two disagree, that end stays put and the other one moves.
+ */
+export function normalizeRange(from: string, to: string, keep: 'from' | 'to' = 'from'): Range {
+  const first = mondayOf(from)
+  const last = mondayOf(to)
+  const weeks = Math.round((toUtc(last) - toUtc(first)) / DAY_MS / 7) + 1
+  const clamped = Math.min(Math.max(weeks, 1), MAX_WEEKS)
+
+  return keep === 'from'
+    ? rangeOfWeeks(first, clamped)
+    : { from: addDays(last, -(clamped - 1) * 7), to: addDays(last, 6) }
+}

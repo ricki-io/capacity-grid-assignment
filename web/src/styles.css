@@ -15,6 +15,8 @@
 body {
   margin: 0;
   padding: 2rem;
+  background: Canvas;
+  color: CanvasText;
 }
 
 h1 {
@@ -22,10 +24,44 @@ h1 {
   margin: 0 0 0.25rem;
 }
 
-.range {
-  margin: 0 0 1.5rem;
-  opacity: 0.6;
+/* Range controls */
+
+.range-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.range-step {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.date-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+.date-field input {
+  font: inherit;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.range-summary {
+  margin: 0;
   font-variant-numeric: tabular-nums;
+}
+
+.range-hint {
+  color: var(--muted);
 }
 
 button {
