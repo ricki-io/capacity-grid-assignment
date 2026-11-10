@@ -1,6 +1,7 @@
 import { memo, useMemo, useState } from 'react'
 import type { Person, PersonCapacity } from './api'
 import { formatHours, isOverInAnyWeek, loadOf, overCountByWeek } from './capacity'
+import { FilterIcon } from './icons'
 import { useCapacity, useWeeklyHoursEditor, type SaveState } from './useCapacity'
 import { addDays, formatDay, mondayOf, today } from './weeks'
 import { WeeklyHoursEditor } from './WeeklyHoursEditor'
@@ -45,12 +46,14 @@ export function CapacityGrid({ from, to }: Props) {
           <strong>{overPeople.length}</strong> of {data.people.length} people are over-allocated in
           these weeks
         </p>
-        <label className="only-over">
+        {/* Still a checkbox to assistive technology; drawn as a filter button. */}
+        <label className="filter-toggle">
           <input
             type="checkbox"
             checked={onlyOver}
             onChange={(event) => setOnlyOver(event.target.checked)}
           />
+          <FilterIcon />
           Over-allocated only
         </label>
       </div>
@@ -81,7 +84,7 @@ export function CapacityGrid({ from, to }: Props) {
             <thead>
               <tr>
                 <th scope="col" className="person-col">
-                  Person
+                  People <span className="people-count">{people.length}</span>
                 </th>
                 {data.weeks.map((week, index) => (
                   <th
@@ -133,9 +136,16 @@ const PersonRow = memo(function PersonRow({
   return (
     <tr>
       <th scope="row" className="person-col">
-        {/* bdi keeps right-to-left names from reordering the text around them */}
-        <bdi className="person-name">{person.name}</bdi>
-        <WeeklyHoursEditor person={person} save={save} onSave={onSave} onDismiss={onDismiss} />
+        <div className="person">
+          <span className="avatar" aria-hidden="true">
+            {initialsOf(person.name)}
+          </span>
+          <div className="person-detail">
+            {/* bdi keeps right-to-left names from reordering the text around them */}
+            <bdi className="person-name">{person.name}</bdi>
+            <WeeklyHoursEditor person={person} save={save} onSave={onSave} onDismiss={onDismiss} />
+          </div>
+        </div>
       </th>
       {person.allocated.map((allocated, week) => (
         <WeekCell key={week} allocated={allocated} capacity={person.weeklyHours} />
@@ -143,6 +153,17 @@ const PersonRow = memo(function PersonRow({
     </tr>
   )
 })
+
+/** Up to two letters for the avatar: first and last name, or the start of a single name. */
+function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  // Array.from splits by code point, so letters outside the basic plane stay whole.
+  const letters =
+    words.length > 1
+      ? [Array.from(words[0])[0], Array.from(words[words.length - 1])[0]]
+      : Array.from(words[0] ?? '').slice(0, 2)
+  return letters.join('').toUpperCase()
+}
 
 function WeekCell({ allocated, capacity }: { allocated: number; capacity: number }) {
   const load = loadOf(allocated, capacity)
@@ -191,7 +212,7 @@ function LoadError({
       <p>
         <strong>Capacity could not be loaded.</strong> {message}
       </p>
-      <button type="button" onClick={onRetry} disabled={retrying}>
+      <button type="button" className="button-primary" onClick={onRetry} disabled={retrying}>
         {retrying ? 'Retrying…' : 'Try again'}
       </button>
     </div>

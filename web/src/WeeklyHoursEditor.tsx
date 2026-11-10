@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import type { Person } from './api'
 import { MAX_WEEKLY_HOURS, formatHours } from './capacity'
+import { PencilIcon } from './icons'
 import type { SaveState } from './useCapacity'
 
 type Props = {
@@ -103,6 +104,7 @@ export function WeeklyHoursEditor({ person, save, onSave, onDismiss }: Props) {
         }}
       >
         {formatHours(person.weeklyHours)} / week
+        <PencilIcon />
       </button>
       {saving && (
         <span className="hours-saving" role="status">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ChevronLeftIcon, ChevronRightIcon } from './icons'
 import {
   MAX_WEEKS,
   formatDay,
@@ -27,32 +28,39 @@ export function RangeControls({ range, onChange }: Props) {
 
   return (
     <div className="range-controls" role="group" aria-label="Weeks shown">
-      <div className="range-step">
+      {/* One joined control, read left to right: step back, the range, step on. */}
+      <div className="range-group">
         <button
           type="button"
+          className="icon-button"
           aria-label="Previous week"
           onClick={() => onChange(shiftRange(range, -1))}
         >
-          ‹
+          <ChevronLeftIcon />
         </button>
-        <button type="button" onClick={() => onChange(rangeOfWeeks(today(), weeks))}>
-          Today
-        </button>
-        <button type="button" aria-label="Next week" onClick={() => onChange(shiftRange(range, 1))}>
-          ›
+        <DateField
+          label="From"
+          value={range.from}
+          onPick={(date) => onChange(normalizeRange(date, range.to, 'from'))}
+        />
+        <DateField
+          label="To"
+          value={range.to}
+          onPick={(date) => onChange(normalizeRange(range.from, date, 'to'))}
+        />
+        <button
+          type="button"
+          className="icon-button"
+          aria-label="Next week"
+          onClick={() => onChange(shiftRange(range, 1))}
+        >
+          <ChevronRightIcon />
         </button>
       </div>
 
-      <DateField
-        label="From"
-        value={range.from}
-        onPick={(date) => onChange(normalizeRange(date, range.to, 'from'))}
-      />
-      <DateField
-        label="To"
-        value={range.to}
-        onPick={(date) => onChange(normalizeRange(range.from, date, 'to'))}
-      />
+      <button type="button" onClick={() => onChange(rangeOfWeeks(today(), weeks))}>
+        Today
+      </button>
 
       <p className="range-summary">
         {formatDay(range.from)} {range.from.slice(0, 4)} to {formatDay(range.to)}{' '}
@@ -79,7 +87,7 @@ function DateField({
 
   return (
     <label className="date-field">
-      {label}
+      <span className="date-field-label">{label}</span>
       <input
         type="date"
         value={draft}

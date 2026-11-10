@@ -14,10 +14,17 @@ export function App() {
   const [range, setRange] = useState(INITIAL_RANGE)
 
   return (
-    <main>
-      <h1>Team capacity</h1>
-      <RangeControls range={range} onChange={setRange} />
-      <CapacityGrid from={range.from} to={range.to} />
+    <main className="page">
+      <section className="panel">
+        <header className="panel-header">
+          <h1>Team capacity</h1>
+          <p className="panel-lede">
+            Hours allocated each week against each person's weekly capacity. Weekdays only.
+          </p>
+        </header>
+        <RangeControls range={range} onChange={setRange} />
+        <CapacityGrid from={range.from} to={range.to} />
+      </section>
     </main>
   )
 }

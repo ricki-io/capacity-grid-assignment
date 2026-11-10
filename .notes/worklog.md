@@ -110,3 +110,16 @@ left unfinished. Append as you go; a line or two per entry is right.
   re-seeded, API image rebuilt, web dependencies installed fresh. The five hand-made
   people still match, 39 / 15 / 0 over per week, 15 tests pass, type-check clean, and the
   page loads with data.
+
+## Look and feel
+
+- Restyled to sit closer to Toggl's own product: warm page, white panel, purple accents, red
+  for over-allocation, uppercase column labels, initials next to each name. Colours are the
+  ones on toggl.com; their roles here, the red pair and all dark-mode values are my choices.
+  The only references were public marketing images, so it is "in the family", not a copy.
+- System font, not Toggl's Aeonik: it is a licensed typeface and I have no right to ship it.
+  No Toggl logo either, for the same reason.
+- No behaviour changed. The "Over-allocated only" checkbox is still a checkbox, drawn as a
+  filter button. Person column is a fixed width so spare room goes to the weeks.
+- Checked in Chromium at desktop and phone width, light and dark, with a failed save and an
+  invalid entry. 15 tests pass, type-check clean.
