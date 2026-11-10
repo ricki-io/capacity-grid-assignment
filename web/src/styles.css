@@ -1,32 +1,747 @@
+/* Colours follow Toggl's public website palette (toggl.com, read November 2026).
+ * The light values are theirs; the roles they are given here, the danger pair
+ * and every dark value are choices made for this page. */
 :root {
   color-scheme: light dark;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+
+  --page: light-dark(#f8f7f1, #151016);
+  --surface: light-dark(#ffffff, #1f1a20);
+  --surface-muted: light-dark(#e7e5da, #2c262d);
+  --text: light-dark(#363137, #ece9e4);
+  --text-muted: light-dark(#676169, #aaa3ab);
+  --line: light-dark(#e7e5da, #2f2930);
+  --border: light-dark(#cbc9bf, #453e46);
+  --control-border: light-dark(#827b80, #8b848c);
+  --heading: light-dark(#37083e, #fae0fe);
+  --primary: light-dark(#8b299b, #ec84ff);
+  --primary-hover: light-dark(#691977, #eeadfb);
+  --on-primary: light-dark(#ffffff, #37083e);
+  --selection: light-dark(#fae0fe, #4e0e58);
+  --selection-text: light-dark(#4e0e58, #fae0fe);
+  --hover: light-dark(#fdf0ff, #2a1b2e);
+  --danger: light-dark(#b42318, #ff8a80);
+  --danger-surface: light-dark(#fef3f2, #3b1714);
+  --danger-border: color-mix(in srgb, var(--danger) 35%, transparent);
+
+  --control-height: 2.25rem;
+  --control-radius: 0.375rem;
+  --panel-radius: 0.5rem;
+  --person-width: 15rem;
+  --week-width: 9rem;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  accent-color: var(--primary);
 }
 
 body {
   margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  background: var(--page);
+  color: var(--text);
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--selection-text);
+}
+
+/* In the page for screen readers, not drawn. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.page {
   padding: 2rem;
 }
 
+.panel {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(24 6 27 / 0.06);
+}
+
+.panel-header {
+  margin-bottom: 1rem;
+}
+
 h1 {
-  font-size: 1.4rem;
-  margin: 0 0 0.25rem;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--heading);
 }
 
-.range {
-  margin: 0 0 1.5rem;
-  opacity: 0.6;
+.panel-lede {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+
+.icon {
+  flex: none;
+}
+
+/* Buttons */
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: var(--control-height);
+  padding: 0 0.75rem;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 120ms,
+    border-color 120ms,
+    color 120ms;
+}
+
+button:hover:not(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+  color: var(--selection-text);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.button-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.button-primary:hover:not(:disabled) {
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
+  color: var(--on-primary);
+}
+
+.icon-button {
+  width: var(--control-height);
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Range controls */
+
+.range-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.range-group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--surface);
+}
+
+.range-group > * + * {
+  border-left: 1px solid var(--border);
+}
+
+.range-group .icon-button {
+  height: calc(var(--control-height) - 2px);
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.range-group .icon-button:first-child {
+  border-radius: calc(var(--control-radius) - 1px) 0 0 calc(var(--control-radius) - 1px);
+}
+
+.range-group .icon-button:last-child {
+  border-left: 1px solid var(--border);
+  border-radius: 0 calc(var(--control-radius) - 1px) calc(var(--control-radius) - 1px) 0;
+}
+
+.date-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-left: 0.75rem;
+}
+
+.date-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.date-field input {
+  height: calc(var(--control-height) - 2px);
+  padding: 0 0.5rem 0 0.125rem;
+  border: 0;
+  border-radius: calc(var(--control-radius) - 1px);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-table {
-  border-collapse: collapse;
+/* Inside the joined control the ring sits within the edge, so the next
+   segment cannot cover it. */
+.range-group :focus-visible {
+  outline-offset: -2px;
+}
+
+.range-summary {
+  margin: 0 0 0 auto;
+  color: var(--text);
   font-variant-numeric: tabular-nums;
 }
 
-th,
-td {
-  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+.range-hint {
+  color: var(--text-muted);
+}
+
+/* Summary and filter */
+
+.capacity-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.capacity-summary {
+  margin: 0;
+}
+
+.capacity-summary strong {
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.capacity-summary .some-over {
+  color: var(--danger);
+}
+
+.filter-toggle {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 0.375rem;
+  height: var(--control-height);
+  padding: 0 0.75rem;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--surface);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 120ms,
+    border-color 120ms,
+    color 120ms;
+}
+
+/* The checkbox stays in the page for keyboard and screen readers; the label
+   around it is what is drawn. */
+.filter-toggle input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.filter-toggle:hover {
+  background: var(--hover);
+  color: var(--selection-text);
+}
+
+.filter-toggle:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--selection);
+  color: var(--selection-text);
+}
+
+.filter-toggle:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Messages */
+
+.notice {
+  margin: 0 0 0.75rem;
   padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--control-radius);
+  background: var(--hover);
+}
+
+.notice-error,
+.load-error {
+  border-color: var(--danger-border);
+  background: var(--danger-surface);
+}
+
+.notice button {
+  height: 1.75rem;
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+  vertical-align: middle;
+}
+
+.load-error {
+  padding: 1rem;
+  border: 1px solid var(--danger-border);
+  border-radius: var(--panel-radius);
+}
+
+.load-error p {
+  margin: 0 0 0.75rem;
+}
+
+.load-error strong {
+  color: var(--danger);
+}
+
+.empty {
+  margin: 0;
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--panel-radius);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Grid */
+
+.grid-scroll {
+  /* Positioned, so the screen-reader-only text inside scrolls with the table
+     instead of stretching the page. */
+  position: relative;
+  max-height: calc(100dvh - 19.5rem);
+  min-height: 16rem;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  transition: opacity 150ms;
+}
+
+.grid-scroll[aria-busy='true'] {
+  opacity: 0.5;
+}
+
+.grid {
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid th,
+.grid td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
   text-align: left;
+  vertical-align: top;
+}
+
+.grid tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-block: 0.625rem;
+  border-bottom-color: var(--border);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.grid .person-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  /* A token width the table cannot stretch: spare room goes to the weeks. */
+  width: 1%;
+  min-width: var(--person-width);
+  max-width: var(--person-width);
+  box-sizing: border-box;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 400;
+}
+
+.grid thead .person-col {
+  z-index: 3;
+}
+
+.grid thead .person-col,
+.week-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.people-count {
+  margin-left: 0.25rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.week-col {
+  min-width: var(--week-width);
+}
+
+.week-col.this-week {
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.week-col.this-week .week-label {
+  color: var(--primary);
+}
+
+.week-label,
+.week-over,
+.person-name {
+  display: block;
+}
+
+.week-over {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.week-over-none {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Person */
+
+.person {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: 0.125rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.person-detail {
+  min-width: 0;
+}
+
+.person-name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+/* Weekly hours editor. Closed, open and saving are the same height, so a row
+   does not move when it opens or saves. Only a problem adds a line. */
+
+.hours-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem 0.375rem;
+  min-height: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hours-button {
+  height: 1.5rem;
+  margin-left: -0.375rem;
+  padding: 0 0.375rem;
+  border-color: transparent;
+  border-radius: 0.25rem;
+  background: none;
+  color: inherit;
+  font-weight: 400;
+}
+
+.hours-button .icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0.7;
+}
+
+.hours-button:hover:not([aria-disabled='true']) .icon {
+  opacity: 1;
+}
+
+.hours-button[aria-disabled='true'] {
+  cursor: default;
+}
+
+.hours-button[aria-disabled='true'] .icon {
+  visibility: hidden;
+}
+
+.hours-input {
+  width: 4.5rem;
+  height: 1.5rem;
+  box-sizing: border-box;
+  padding: 0 0.375rem;
+  border: 1px solid var(--primary);
+  border-radius: 0.25rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.hours-input[aria-invalid='true'] {
+  border-color: var(--danger);
+  outline-color: var(--danger);
+}
+
+.hours-saving {
+  color: var(--primary);
+}
+
+.hours-problem {
+  flex-basis: 100%;
+  padding-bottom: 0.125rem;
+  color: var(--danger);
+  white-space: normal;
+}
+
+.hours-problem button {
+  display: inline-flex;
+  height: 1.375rem;
+  margin-top: 0.25rem;
+  padding: 0 0.5rem;
+  font-size: inherit;
+}
+
+/* Cells */
+
+.cell-none {
+  color: var(--text-muted);
+}
+
+.cell-hours {
+  font-weight: 600;
+}
+
+.cell-note {
+  margin-left: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.cell-meter {
+  display: block;
+  height: 0.25rem;
+  /* Capped so a bar means the same length in a 3-week view as in a 26-week one. */
+  max-width: 10rem;
+  margin-top: 0.5rem;
+  border-radius: 0.125rem;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.cell-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+.cell-full .cell-note {
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.cell-full .cell-meter span {
+  background: var(--heading);
+}
+
+.cell-over {
+  background: var(--danger-surface);
+  color: var(--danger);
+}
+
+.cell-over .cell-note {
+  font-weight: 600;
+  color: inherit;
+}
+
+.cell-over .cell-meter {
+  background: var(--danger-border);
+}
+
+.cell-over .cell-meter span {
+  background: var(--danger);
+}
+
+/* Loading */
+
+.loading {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.loading-row {
+  height: 3.25rem;
+  border-radius: var(--control-radius);
+  background: var(--surface-muted);
+  opacity: 0.6;
+  animation: pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.25;
+  }
+}
+
+/* Small screens: less chrome around the table, and the range summary drops
+   under the controls. */
+@media (max-width: 40rem) {
+  .page {
+    padding: 0.5rem;
+  }
+
+  .panel {
+    padding: 0.75rem;
+  }
+
+  .range-summary {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  /* The joined control takes the full width and the dates share what is left. */
+  .range-group {
+    display: flex;
+    flex-basis: 100%;
+  }
+
+  .date-field {
+    flex: 1;
+    min-width: 0;
+    padding-left: 0.5rem;
+  }
+
+  .date-field input {
+    width: 100%;
+    min-width: 0;
+    padding-right: 0.25rem;
+  }
+
+  /* The table keeps its own scroll area here too: without a height the
+     header has nothing to stick to and scrolls away with the page. */
+  .grid-scroll {
+    max-height: calc(100dvh - 1.5rem);
+  }
+
+  :root {
+    --person-width: 11rem;
+    --week-width: 7.5rem;
+  }
+}
+
+/* Between the two layouts there is room for the dates but not their labels. */
+@media (min-width: 22.51rem) and (max-width: 40rem) {
+  .date-field-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Narrowest screens, and desktop at 400% zoom: the two dates stack between
+   the arrows, so the control fits without the page scrolling sideways. */
+@media (max-width: 22.5rem) {
+  .range-group {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .range-group .icon-button {
+    grid-row: 1 / span 2;
+    height: auto;
+  }
+
+  .range-group .icon-button:last-child {
+    grid-column: 3;
+  }
+
+  .date-field {
+    grid-column: 2;
+  }
+
+  .date-field + .date-field {
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-row {
+    animation: none;
+  }
+
+  .grid-scroll,
+  button,
+  .filter-toggle {
+    transition: none;
+  }
 }
