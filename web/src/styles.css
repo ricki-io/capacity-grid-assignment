@@ -51,6 +51,16 @@ body {
   color: var(--selection-text);
 }
 
+/* In the page for screen readers, not drawn. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .page {
   padding: 2rem;
 }
@@ -94,7 +104,7 @@ button {
   gap: 0.375rem;
   height: var(--control-height);
   padding: 0 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: var(--control-radius);
   background: var(--surface);
   color: var(--text);
@@ -152,7 +162,7 @@ button:disabled {
 .range-group {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: var(--control-radius);
   background: var(--surface);
 }
@@ -237,6 +247,9 @@ button:disabled {
   font-size: 1rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.capacity-summary .some-over {
   color: var(--danger);
 }
 
@@ -248,7 +261,7 @@ button:disabled {
   gap: 0.375rem;
   height: var(--control-height);
   padding: 0 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: var(--control-radius);
   background: var(--surface);
   font-weight: 500;
@@ -335,6 +348,9 @@ button:disabled {
 /* Grid */
 
 .grid-scroll {
+  /* Positioned, so the screen-reader-only text inside scrolls with the table
+     instead of stretching the page. */
+  position: relative;
   max-height: calc(100dvh - 19.5rem);
   min-height: 16rem;
   overflow: auto;
@@ -474,8 +490,8 @@ button:disabled {
   color: var(--text);
 }
 
-/* Weekly hours editor. Both states are the same height, so a row does not
-   move when it opens or saves. */
+/* Weekly hours editor. Closed, open and saving are the same height, so a row
+   does not move when it opens or saves. Only a problem adds a line. */
 
 .hours-editor {
   display: flex;
@@ -563,7 +579,7 @@ button:disabled {
 }
 
 .cell-note {
-  margin-left: 0.375rem;
+  margin-left: 0.125rem;
   font-size: 0.75rem;
   color: var(--text-muted);
 }
@@ -668,6 +684,20 @@ button:disabled {
     padding-right: 0.25rem;
   }
 
+  /* The table keeps its own scroll area here too: without a height the
+     header has nothing to stick to and scrolls away with the page. */
+  .grid-scroll {
+    max-height: calc(100dvh - 1.5rem);
+  }
+
+  :root {
+    --person-width: 11rem;
+    --week-width: 7.5rem;
+  }
+}
+
+/* Between the two layouts there is room for the dates but not their labels. */
+@media (min-width: 22.51rem) and (max-width: 40rem) {
   .date-field-label {
     position: absolute;
     width: 1px;
@@ -676,14 +706,31 @@ button:disabled {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+}
 
-  .grid-scroll {
-    max-height: none;
+/* Narrowest screens, and desktop at 400% zoom: the two dates stack between
+   the arrows, so the control fits without the page scrolling sideways. */
+@media (max-width: 22.5rem) {
+  .range-group {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
   }
 
-  :root {
-    --person-width: 11rem;
-    --week-width: 7.5rem;
+  .range-group .icon-button {
+    grid-row: 1 / span 2;
+    height: auto;
+  }
+
+  .range-group .icon-button:last-child {
+    grid-column: 3;
+  }
+
+  .date-field {
+    grid-column: 2;
+  }
+
+  .date-field + .date-field {
+    border-top: 1px solid var(--border);
   }
 }
 

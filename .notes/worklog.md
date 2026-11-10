@@ -123,3 +123,21 @@ left unfinished. Append as you go; a line or two per entry is right.
   filter button. Person column is a fixed width so spare room goes to the weeks.
 - Checked in Chromium at desktop and phone width, light and dark, with a failed save and an
   invalid entry. 15 tests pass, type-check clean.
+
+## Accessibility and small-screen fixes
+
+- Had the restyle reviewed (design critique plus accessibility audit) and fixed what was a
+  real defect, not taste:
+  - Phones lost the week header: the table had no height there, so the header had nothing
+    to stick to. It keeps its own scroll area at every width now.
+  - At 320px (and desktop at 400% zoom) the range control overflowed. The two dates stack
+    between the arrows below 360px.
+  - Control borders were 1.66:1 on white; now 4.12:1. Slightly heavier than Toggl's.
+  - For screen readers: the table has a name, an empty cell says "Nothing allocated", the
+    current week says "This week", and "40h full" is no longer read as one word.
+  - "0 of 500" is no longer red; cut-off names show in full on hover.
+- Screen-reader-only text inside a scroll area must sit in a positioned ancestor, or it
+  stretches the page (it made the document 30,000px tall until the scroll area was positioned).
+- Left alone on purpose: search and sort for 500 people, range presets, and a Save/Cancel
+  step for weekly hours. Those are features, not fixes.
+- Not tested with a real screen reader, nor at 200% text-only zoom.

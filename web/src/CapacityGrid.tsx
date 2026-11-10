@@ -43,8 +43,10 @@ export function CapacityGrid({ from, to }: Props) {
     <section className="capacity">
       <div className="capacity-bar">
         <p className="capacity-summary">
-          <strong>{overPeople.length}</strong> of {data.people.length} people are over-allocated in
-          these weeks
+          <strong className={overPeople.length > 0 ? 'some-over' : undefined}>
+            {overPeople.length}
+          </strong>{' '}
+          of {data.people.length} people are over-allocated in these weeks
         </p>
         {/* Still a checkbox to assistive technology; drawn as a filter button. */}
         <label className="filter-toggle">
@@ -80,7 +82,7 @@ export function CapacityGrid({ from, to }: Props) {
         </p>
       ) : (
         <div className="grid-scroll" aria-busy={isPlaceholderData}>
-          <table className="grid">
+          <table className="grid" aria-label="Allocated hours per person, week by week">
             <thead>
               <tr>
                 <th scope="col" className="person-col">
@@ -93,6 +95,8 @@ export function CapacityGrid({ from, to }: Props) {
                     className={week === thisWeek ? 'week-col this-week' : 'week-col'}
                   >
                     <span className="week-label">
+                      {/* The purple marker says this to the eye; this says it to a screen reader. */}
+                      {week === thisWeek && <span className="visually-hidden">This week, </span>}
                       {formatDay(week)} – {formatDay(addDays(week, 6))}
                     </span>
                     <span className={overByWeek[index] > 0 ? 'week-over' : 'week-over week-over-none'}>
@@ -142,7 +146,10 @@ const PersonRow = memo(function PersonRow({
           </span>
           <div className="person-detail">
             {/* bdi keeps right-to-left names from reordering the text around them */}
-            <bdi className="person-name">{person.name}</bdi>
+            {/* title: long names are cut off with an ellipsis */}
+            <bdi className="person-name" title={person.name}>
+              {person.name}
+            </bdi>
             <WeeklyHoursEditor person={person} save={save} onSave={onSave} onDismiss={onDismiss} />
           </div>
         </div>
@@ -170,7 +177,8 @@ function WeekCell({ allocated, capacity }: { allocated: number; capacity: number
   if (load === 'none') {
     return (
       <td className="cell cell-none">
-        <span aria-label="Nothing allocated">–</span>
+        <span aria-hidden="true">–</span>
+        <span className="visually-hidden">Nothing allocated</span>
       </td>
     )
   }
@@ -178,7 +186,8 @@ function WeekCell({ allocated, capacity }: { allocated: number; capacity: number
   const filled = capacity > 0 ? Math.min(allocated / capacity, 1) : 1
   return (
     <td className={`cell cell-${load}`}>
-      <span className="cell-hours">{formatHours(allocated)}</span>
+      {/* The space keeps "40h" and "full" apart when read aloud. */}
+      <span className="cell-hours">{formatHours(allocated)}</span>{' '}
       {load === 'over' && <span className="cell-note">+{formatHours(allocated - capacity)} over</span>}
       {load === 'full' && <span className="cell-note">full</span>}
       <span className="cell-meter" aria-hidden="true">
